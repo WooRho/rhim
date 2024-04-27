@@ -14,7 +14,7 @@ func main() {
 		systemInfo      = initConfig.System
 	)
 	if err != nil {
-		err = errors.New("init error")
+		err = errors.New("yaml init error")
 		return
 	}
 	// 1.创建路由

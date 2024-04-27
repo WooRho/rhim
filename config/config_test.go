@@ -1,6 +1,8 @@
 package config
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestConfig(t *testing.T) {
 	InitConfig()

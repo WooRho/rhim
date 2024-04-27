@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"gopkg.in/yaml.v3"
 	"io/ioutil"
+	"os"
 )
 
-const YAMLPATH = "E:\\code\\rhim\\config.yaml"
+var file = "config.yaml" // 配置文件名
 
 type Config struct {
 	Mysql struct {
@@ -28,10 +29,13 @@ type Config struct {
 
 func InitConfig() (Config, error) {
 	var config Config
+	args := os.Args
+	if len(args) > 1 {
+		file = args[1]
+	}
 
 	// 读取并解析YAML文件
-	yamlFile := YAMLPATH
-	yamlData, err := ioutil.ReadFile(yamlFile)
+	yamlData, err := ioutil.ReadFile(file)
 	if err != nil {
 		fmt.Printf("Failed to read YAML file: %v", err)
 		return config, err
