@@ -9,23 +9,39 @@ import (
 
 var file = "config.yaml" // 配置文件名
 
-type Config struct {
+type (
 	Mysql struct {
-		Host     string `yaml:"host"`
-		Port     string `yaml:"port"`
-		Username string `yaml:"username"`
-		Password string `yaml:"password"`
-	} `yaml:"mysql"`
+		Host              string `yaml:"host"`
+		Port              string `yaml:"port"`
+		User              string `yaml:"user"`
+		Password          string `yaml:"password"`
+		Charset           string `yaml:"charset"`
+		Collation         string `yaml:"collation"`
+		Database          string `yaml:"database"`
+		MaxIdleConnection int    `yaml:"max_idle_connection"`
+		MaxConnection     int    `yaml:"max_connection"`
+	}
 	Redis struct {
 		Port string `yaml:"port"`
 		Host string `yaml:"host"`
-	} `yaml:"redis"`
+	}
 	System struct {
 		Name string `yaml:"server_name"`
 		Port string `yaml:"port"`
 		Host string `yaml:"host"`
-	} `yaml:"system"`
-}
+	}
+	Config struct {
+		Mysql  Mysql  `yaml:"mysql"`
+		Redis  Redis  `yaml:"redis"`
+		System System `yaml:"system"`
+	}
+)
+
+var (
+	mysql  Mysql
+	redis  Redis
+	system System
+)
 
 func InitConfig() (Config, error) {
 	var config Config
@@ -46,7 +62,17 @@ func InitConfig() (Config, error) {
 		fmt.Printf("Error parsing YAML: %v", err)
 		return config, err
 	}
-
+	mysql = config.Mysql
+	redis = config.Redis
+	system = config.System
 	// 打印解析后的数据
 	return config, nil
+}
+
+func GetMysql() Mysql {
+	return mysql
+}
+
+func GetRedis() Redis {
+	return redis
 }
