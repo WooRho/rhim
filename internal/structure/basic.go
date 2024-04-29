@@ -76,3 +76,8 @@ type baseResponse struct {
 func (r *baseResponse) SetVersion(version string) {
 	r.Version = version
 }
+
+type Id struct {
+	Id  uint64 `json:"id" form:"id"`
+	Ids string `json:"ids" form:"ids"`
+}
