@@ -16,17 +16,25 @@ import (
 var userDbs sync.Map
 
 // GetDb 获取指定数据库
-func GetDb(config config.Mysql) *gorm.DB {
-	data, ok := userDbs.Load(config.Database)
+func GetDb(mysql ...*config.Mysql) *gorm.DB {
+	var (
+		mysqlTmp = &config.Mysql{}
+	)
+	if len(mysql) == 0 {
+		mysqlTmp = config.GetMysql()
+	} else {
+		mysqlTmp = mysql[0]
+	}
+	data, ok := userDbs.Load(mysqlTmp.Database)
 	if !ok || data.(*gorm.DB) == nil {
-		singleDb := NewDatabase(config)
-		userDbs.Store(config.Database, singleDb)
+		singleDb := NewDatabase(mysqlTmp)
+		userDbs.Store(mysqlTmp.Database, singleDb)
 		return singleDb
 	}
 	return data.(*gorm.DB)
 }
 
-func NewDatabase(config config.Mysql) *gorm.DB {
+func NewDatabase(config *config.Mysql) *gorm.DB {
 
 	dblink := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=%v&collation=%v&loc=Local&parseTime=true",
 		config.User,
@@ -37,19 +45,17 @@ func NewDatabase(config config.Mysql) *gorm.DB {
 		config.Charset,
 		config.Collation,
 	)
-	//root:a123@tcp(127.0.0.1:3308)/fenxiao?charset=utf8mb4&collation=utf8mb4_general_ci&loc=Local&parseTime=true
-	//root:a1234@tcp(127.0.0.1:3308)/rhim?charset=utf8mb4&collation=utf8mb4_general_ci&loc=Local&parseTime=true
-	//root:a1234@tcp(127.0.0.1:3306)/godb?charset=utf8mb4&collation=utf8mb4_general_ci&loc=Local&parseTime=true
 	//加载日志
 	slowLogger := logger.New(
 		//将标准输出作为Writer
 		log.New(os.Stdout, "\r\n", log.LstdFlags),
 		logger.Config{
-			//设定慢查询时间阈值为1ms
-			SlowThreshold: 1 * time.Second,
+			//设定慢查询时间阈值为3s
+			SlowThreshold: 3 * time.Second,
 			//设置日志级别，只有Warn和Info级别会输出慢查询日志
 			LogLevel:                  logger.Info,
 			IgnoreRecordNotFoundError: false,
+			Colorful:                  true,
 		},
 	)
 	db, err := gorm.Open(mysql.Open(dblink), &gorm.Config{
@@ -70,7 +76,7 @@ func NewDatabase(config config.Mysql) *gorm.DB {
 	return db
 }
 
-func SetDB(config config.Mysql, db *gorm.DB) {
+func SetDB(config *config.Mysql, db *gorm.DB) {
 	sqlDB, err := db.DB()
 	if err != nil {
 		panic(err)

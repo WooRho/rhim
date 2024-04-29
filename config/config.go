@@ -69,10 +69,10 @@ func InitConfig() (Config, error) {
 	return config, nil
 }
 
-func GetMysql() Mysql {
-	return mysql
+func GetMysql() *Mysql {
+	return &mysql
 }
 
-func GetRedis() Redis {
-	return redis
+func GetRedis() *Redis {
+	return &redis
 }

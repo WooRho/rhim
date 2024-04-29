@@ -4,7 +4,7 @@ import (
 	"errors"
 	"github.com/gin-gonic/gin"
 	"rhim/config"
-	"rhim/internal/server"
+	"rhim/internal/rooter"
 	"rhim/middleware"
 )
 
@@ -26,10 +26,7 @@ func main() {
 		return
 	}
 	Init(initConfig, r)
-	// gin.Context，封装了request和response
 
-	// 3.监听端口，默认在8080
-	// Run("里面不指定端口号默认为8080")
 	err = r.Run(":" + systemInfo.Port)
 	if err != nil {
 		return
@@ -37,12 +34,13 @@ func main() {
 }
 
 func Init(config config.Config, r *gin.Engine) {
-	middleware.NewDatabase(config.Mysql)
-	middleware.NewServiceContext(config)
+	middleware.NewDatabase(&config.Mysql)
+	middleware.NewServiceContext()
 	InitRoot(config, r)
 }
 
 func InitRoot(c config.Config, r *gin.Engine) {
 	baseGroup := r.Group(c.System.Name)
-	server.UserRoot(baseGroup)
+	rooter.UserRoot(baseGroup)
+	rooter.SwagRoot(baseGroup)
 }
