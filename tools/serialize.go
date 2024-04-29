@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 	"net/http"
 	"reflect"
 	"rhim/internal/structure"
@@ -48,7 +47,7 @@ func BuildCustomError(c *gin.Context, err error) {
 		return
 	}
 	var (
-		response Response
+		response structure.Response
 	)
 	//response.SetVersion(version)
 	//switch vErr := err.(type) {
@@ -96,7 +95,7 @@ func BuildDataContext(c *gin.Context, data structure.IResponseData) {
 }
 
 // 用于返回列表数据（不支持数据报表导出）  （新的API建议使用buildListResponseV2）
-func BuildListResponse(c *gin.Context, err error, list structure.IResponseData, total int) {
+func BuildListResponse(c *gin.Context, err error, list structure.IResponseData, total int64) {
 	if err != nil {
 		BuildCustomError(c, err)
 	} else {

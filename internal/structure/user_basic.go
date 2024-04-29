@@ -1,9 +1,14 @@
 package structure
 
+import (
+	"errors"
+	"github.com/asaskevich/govalidator"
+)
+
 type (
 	common struct {
 		Name          string `json:"name" form:"name"`                                      // 名字
-		PassWord      string `json:"pass_word" form:"pass_word"`                            // 密码
+		Password      string `json:"pass_word" form:"pass_word"`                            // 密码
 		Phone         string `json:"phone" form:"phone" valid:"matches(^1[3-9]{1}\\d{9}$)"` // 手机号
 		Email         string `json:"email" form:"email"  valid:"email"`                     // 邮箱
 		Identity      string `json:"identity" form:"identity"`                              // 身份
@@ -17,19 +22,54 @@ type (
 	}
 	UserBasicInfo struct {
 		BasicRecord
+		common
 	}
 	AddUserBasicInfo struct {
+		RePassword string `json:"re_password"` // 确认密码
 		common
 	}
 	UpdateUserBasicInfo struct {
 		common
-		Id uint64 `json:"id"`
+		Id uint `json:"id"`
 	}
 	SearchUserBasicInfo struct {
+		ListQuery
 		common
 	}
 	UserBasicInfoList []*UserBasicInfo
 )
+
+func (u UpdateUserBasicInfo) AdjustParam() {
+
+}
+
+func (u UpdateUserBasicInfo) ValidateParam() error {
+	if u.Id == 0 {
+		return errors.New("请传入id")
+	}
+	_, err := govalidator.ValidateStruct(u)
+	return err
+}
+
+func (a AddUserBasicInfo) AdjustParam() {
+
+}
+
+func (a AddUserBasicInfo) ValidateParam() error {
+	if a.Password != a.RePassword {
+		return errors.New("两次密码不一致")
+	}
+	_, err := govalidator.ValidateStruct(a)
+	return err
+}
+
+func (s *SearchUserBasicInfo) AdjustParam() {
+	//s.IsPage()
+}
+
+func (s SearchUserBasicInfo) ValidateParam() error {
+	return nil
+}
 
 func (u UserBasicInfoList) AdjustData() {
 }

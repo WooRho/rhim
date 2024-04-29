@@ -2,7 +2,7 @@ package structure
 
 type (
 	BasicRecord struct {
-		Id          uint64 `json:"id"`           // id
+		Id          uint   `json:"id"`           // id
 		CreatedAt   string `json:"created_at"`   // 创建时间
 		UpdatedAt   string `json:"updated_at"`   // 更新时间
 		CreatorId   uint64 `json:"creator_id"`   // 创建人id
@@ -11,7 +11,7 @@ type (
 		UpdaterName string `json:"updater_name"` // 更新人名称
 	}
 	BasicRecordUnScope struct {
-		Id          uint64 `json:"id"`           // id
+		Id          uint   `json:"id"`           // id
 		CreatedAt   string `json:"created_at"`   // 创建时间
 		UpdatedAt   string `json:"updated_at"`   // 更新时间
 		DeletedAt   string `json:"deleted_at"`   // 删除时间
@@ -21,6 +21,12 @@ type (
 		CreatorName string `json:"creator_name"` // 创建人名称
 		UpdaterName string `json:"updater_name"` // 更新人名称
 		DeletedName string `json:"deleted_name"` // 删除人名称
+	}
+	ListQuery struct {
+		Page   int `form:"page"` // 页码 从1开始
+		Size   int `form:"size"`
+		Offset int `form:"offset"` // 偏移量 从0开始（优先使用）
+		Limit  int `form:"limit"`
 	}
 )
 
@@ -63,7 +69,7 @@ type ListResponse struct {
 	Data struct {
 		Summary interface{} `json:"summary,omitempty"`
 		List    interface{} `json:"list,omitempty"`
-		Total   int         `json:"total"`
+		Total   int64       `json:"total"`
 	} `json:"data"`
 }
 
@@ -78,6 +84,64 @@ func (r *baseResponse) SetVersion(version string) {
 }
 
 type Id struct {
-	Id  uint64 `json:"id" form:"id"`
+	Id  uint   `json:"id" form:"id"`
 	Ids string `json:"ids" form:"ids"`
+}
+
+func (i Id) AdjustParam() {
+}
+
+func (i Id) ValidateParam() error {
+	return nil
+}
+
+func (i Id) AdjustData() {
+}
+
+func (q *ListQuery) IsPage() bool {
+	q.Limit = q.GetLimit()
+	q.Offset = q.GetOffset()
+	if q.Page == 0 && q.Size == 0 && q.Offset == 0 && q.Limit == 0 {
+		// 全零
+		return false
+	}
+	return true
+}
+
+func (q *ListQuery) GetOffset() int {
+	if q.Page == 0 && q.Size == 0 && q.Offset == 0 && q.Limit == 0 {
+		// 全零
+		return 0
+	}
+
+	if q.Offset != 0 || q.Limit != 0 {
+		// 使用offset/limit
+		return q.Offset
+	} else {
+		// 使用page/size
+		if q.Page == 0 {
+			q.Page = 1
+		}
+
+		return (q.Page - 1) * q.Size
+	}
+}
+
+func (q *ListQuery) GetLimit() int {
+	if q.Page == 0 && q.Size == 0 && q.Offset == 0 && q.Limit == 0 {
+		// 全零
+		return 0
+	}
+
+	if q.Offset != 0 || q.Limit != 0 {
+		// 使用offset/limit
+		return q.Limit
+	}
+
+	if q.Size == 0 {
+		// 使用page/size
+		q.Size = 24
+	}
+
+	return q.Size
 }

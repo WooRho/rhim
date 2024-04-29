@@ -36,6 +36,7 @@ func main() {
 func Init(config config.Config, r *gin.Engine) {
 	middleware.NewDatabase(&config.Mysql)
 	middleware.NewServiceContext()
+	middleware.InitSnowflake()
 	InitRoot(config, r)
 }
 

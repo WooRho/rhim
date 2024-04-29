@@ -1,8 +1,12 @@
 package models
 
 import (
+	"context"
 	"fmt"
 	"gorm.io/gorm"
+	"rhim/internal/structure"
+	"rhim/middleware"
+	"rhim/tools"
 	"time"
 )
 
@@ -10,7 +14,7 @@ type (
 	UserBasic struct {
 		Basic
 		Name          string    `gorm:"column:name;type:varchar(255) ;not null;default:'';comment:名字" `                            // 名字
-		PassWord      string    `gorm:"column:pass_word;type:varchar(255) ;not null;default:'';comment:密码"`                        // 密码
+		Password      string    `gorm:"column:pass_word;type:varchar(255) ;not null;default:'';comment:密码"`                        // 密码
 		Phone         string    `gorm:"column:phone; type:varchar(255) ;not null;default:'';comment:手机号"`                          // 手机号
 		Email         string    `gorm:"column:email; type:varchar(255) ;not null;default:'';comment:邮箱"`                           // 邮箱
 		Identity      string    `gorm:"column:identity; type:varchar(255) ;not null;default:'';comment:身份"`                        // 身份
@@ -29,12 +33,57 @@ func (table *UserBasic) TableName() string {
 	return "user_basic"
 }
 
+func (m *UserBasic) New(req *structure.AddUserBasicInfo) {
+	m.ID = middleware.Snowflake.GenerateID().UInt()
+	m.Name = req.Name
+	m.Password = req.Password
+	m.Phone = req.Phone
+	m.Email = req.Email
+	m.Identity = req.Identity
+	m.ClientIp = req.ClientIp
+	m.ClientPort = req.ClientPort
+	m.DeviceInfo = req.DeviceInfo
+}
+
+func (m *UserBasic) Update(req *structure.UpdateUserBasicInfo) {
+	m.Name = req.Name
+	m.Password = req.Password
+	m.Phone = req.Phone
+	m.Email = req.Email
+	m.Identity = req.Identity
+	m.ClientIp = req.ClientIp
+	m.ClientPort = req.ClientPort
+	m.DeviceInfo = req.DeviceInfo
+}
+
+func (m *UserBasic) BuildResp() *structure.UserBasicInfo {
+	resp := &structure.UserBasicInfo{}
+	resp.Name = m.Name
+	resp.Password = m.Password
+	resp.Phone = m.Phone
+	resp.Email = m.Email
+	resp.Identity = m.Identity
+	resp.ClientIp = m.ClientIp
+	resp.ClientPort = m.ClientPort
+	resp.DeviceInfo = m.DeviceInfo
+	resp.Id = m.ID
+	resp.CreatedAt = tools.Time2String(m.CreatedAt, tools.YMDHMS)
+	resp.UpdatedAt = tools.Time2String(m.UpdatedAt, tools.YMDHMS)
+	resp.CreatorId = m.CreatorId
+	resp.UpdaterId = m.UpdaterId
+	return resp
+}
+
 type (
 	UserBasicDao struct {
 		db *gorm.DB
 	}
 	UserBasicDaoInterface interface {
-		TestCreate() error
+		Create(ctx context.Context, user *UserBasic) error
+		Update(ctx context.Context, user *UserBasic) error
+		Delete(ctx context.Context, id uint) error
+		Get(ctx context.Context, id uint) (*UserBasic, error)
+		GetList(ctx context.Context, req *structure.SearchUserBasicInfo) (UserBasicList, int64, error)
 	}
 )
 
@@ -48,9 +97,42 @@ func NewUserBasicDao(db *gorm.DB) UserBasicDaoInterface {
 	}
 }
 
-func (d *UserBasicDao) TestCreate() error {
-
-	user := &UserBasic{}
-	user.Name = "申专"
+func (d *UserBasicDao) Create(ctx context.Context, user *UserBasic) error {
 	return d.db.Create(user).Error
+}
+
+func (d *UserBasicDao) Update(ctx context.Context, user *UserBasic) error {
+	modifyMap := tools.Structure2ModifyMap(user)
+	return d.db.Updates(modifyMap).Error
+}
+
+func (d *UserBasicDao) Delete(ctx context.Context, id uint) error {
+	return d.db.Where("id = ?", id).Delete(&UserBasic{}).Error
+}
+func (d *UserBasicDao) Get(ctx context.Context, id uint) (*UserBasic, error) {
+	var (
+		m = &UserBasic{}
+	)
+	err := d.db.Where("id = ?", id).First(m).Error
+	return m, err
+}
+func (d *UserBasicDao) GetList(ctx context.Context, req *structure.SearchUserBasicInfo) (UserBasicList, int64, error) {
+	var (
+		count int64
+		model = UserBasicList{}
+	)
+
+	db := d.db
+	if req.IsPage() {
+		db = db.Limit(req.Limit).Offset(req.Offset)
+	}
+	db.Order("id desc").Count(&count).Find(&model)
+	if db.Error != nil {
+		panic(db.Error.Error())
+	}
+	return model, count, nil
+}
+
+func (d *UserBasicDao) Unique(ctx context.Context, req UserBasic) {
+	d.db.Where("name = ?", req.Name).First(&UserBasic{})
 }

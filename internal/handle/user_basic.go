@@ -1,14 +1,12 @@
 package handle
 
 import (
-	"fmt"
-	"github.com/asaskevich/govalidator"
+	"context"
 	"github.com/gin-gonic/gin"
-	"rhim/internal/models"
+	"rhim/internal/logic"
 	"rhim/internal/structure"
 	"rhim/middleware"
 	"rhim/tools"
-	"strconv"
 )
 
 // GetUserList
@@ -18,11 +16,13 @@ import (
 // @Router /user/getUserList [get]
 func GetUserList(c *gin.Context) {
 	var (
-		err   error
-		db    = middleware.GetDb()
-		p     = &structure.UserBasicInfo{}
-		data  = structure.UserBasicInfoList{}
-		total int
+		err       error
+		db        = middleware.GetDb()
+		p         = &structure.SearchUserBasicInfo{}
+		data      = &structure.UserBasicInfoList{}
+		total     int64
+		ctx       = context.TODO()
+		userLogic = logic.NewUserBasicLogic(db)
 	)
 
 	err = tools.ShouldBind(c, p)
@@ -33,11 +33,11 @@ func GetUserList(c *gin.Context) {
 		tools.BuildListResponse(c, err, data, total)
 	}()
 
-	data = models.GetUserList()
+	data, total, err = userLogic.GetUserList(ctx, p)
+	if err != nil {
+		return
+	}
 
-	c.JSON(200, gin.H{
-		"message": data,
-	})
 }
 
 // CreateUser
@@ -49,21 +49,25 @@ func GetUserList(c *gin.Context) {
 // @Success 200 {string} json{"code","message"}
 // @Router /user/createUser [get]
 func CreateUser(c *gin.Context) {
-	user := models.UserBasic{}
-	user.Name = c.Query("name")
-	password := c.Query("password")
-	repassword := c.Query("repassword")
-	if password != repassword {
-		c.JSON(-1, gin.H{
-			"message": "两次密码不一致！",
-		})
+
+	var (
+		err       error
+		db        = middleware.GetDb()
+		p         = &structure.AddUserBasicInfo{}
+		data      = &structure.Id{}
+		ctx       = context.TODO()
+		userLogic = logic.NewUserBasicLogic(db)
+	)
+
+	err = tools.ShouldBind(c, p)
+	if err != nil {
 		return
 	}
-	user.PassWord = password
-	models.CreateUser(user)
-	c.JSON(200, gin.H{
-		"message": "新增用户成功！",
-	})
+	defer func() {
+		tools.BuildResponse(c, err, data)
+	}()
+	data, err = userLogic.CreateUser(ctx, p)
+	return
 }
 
 // DeleteUser
@@ -73,13 +77,25 @@ func CreateUser(c *gin.Context) {
 // @Success 200 {string} json{"code","message"}
 // @Router /user/deleteUser [get]
 func DeleteUser(c *gin.Context) {
-	user := models.UserBasic{}
-	id, _ := strconv.Atoi(c.Query("id"))
-	user.ID = uint(id)
-	models.DeleteUser(user)
-	c.JSON(200, gin.H{
-		"message": "删除用户成功！",
-	})
+
+	var (
+		err       error
+		db        = middleware.GetDb()
+		p         = &structure.Id{}
+		data      = &structure.Id{}
+		ctx       = context.TODO()
+		userLogic = logic.NewUserBasicLogic(db)
+	)
+
+	err = tools.ShouldBind(c, p)
+	if err != nil {
+		return
+	}
+	defer func() {
+		tools.BuildResponse(c, err, data)
+	}()
+	err = userLogic.DeleteUser(ctx, p)
+	return
 }
 
 // UpdateUser
@@ -93,26 +109,23 @@ func DeleteUser(c *gin.Context) {
 // @Success 200 {string} json{"code","message"}
 // @Router /user/updateUser [post]
 func UpdateUser(c *gin.Context) {
-	user := models.UserBasic{}
-	id, _ := strconv.Atoi(c.PostForm("id"))
-	user.ID = uint(id)
-	user.Name = c.PostForm("name")
-	user.PassWord = c.PostForm("password")
-	user.Phone = c.PostForm("phone")
-	user.Email = c.PostForm("email")
-	fmt.Println("update :", user)
+	var (
+		err       error
+		db        = middleware.GetDb()
+		p         = &structure.UpdateUserBasicInfo{}
+		data      = &structure.Id{}
+		ctx       = context.TODO()
+		userLogic = logic.NewUserBasicLogic(db)
+	)
 
-	_, err := govalidator.ValidateStruct(user)
+	err = tools.ShouldBind(c, p)
 	if err != nil {
-		fmt.Println(err)
-		c.JSON(200, gin.H{
-			"message": "修改参数不匹配！",
-		})
-	} else {
-		models.UpdateUser(user)
-		c.JSON(200, gin.H{
-			"message": "修改用户成功！",
-		})
+		return
 	}
+	defer func() {
+		tools.BuildResponse(c, err, data)
+	}()
+	data, err = userLogic.UpdateUser(ctx, p)
+	return
 
 }

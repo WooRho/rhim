@@ -33,3 +33,12 @@ func InitRedis(redisConfig *config.Redis) *redis.Client {
 	})
 	return rdb
 }
+
+// 全局变量
+var (
+	Snowflake NodeIface
+)
+
+func InitSnowflake() {
+	Snowflake = NewCustomNode()
+}
