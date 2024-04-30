@@ -1,13 +1,290 @@
+definitions:
+  structure.AddUserBasicInfo:
+    properties:
+      client_ip:
+        description: 客户端ip
+        type: string
+      client_port:
+        description: 客户端端口
+        type: string
+      device_info:
+        description: 设备信息
+        type: string
+      email:
+        description: 邮箱
+        type: string
+      heartbeat_time:
+        description: 心跳时间
+        type: string
+      identity:
+        description: 身份
+        type: string
+      is_logout:
+        description: 是否登出
+        type: integer
+      login_out_time:
+        description: 登出时间
+        type: string
+      login_time:
+        description: 登录时间
+        type: string
+      name:
+        description: 名字
+        type: string
+      pass_word:
+        description: 密码
+        type: string
+      phone:
+        description: 手机号
+        type: string
+      re_password:
+        description: 确认密码
+        type: string
+      salt:
+        description: 加盐
+        type: string
+    type: object
+  structure.Id:
+    properties:
+      id:
+        type: integer
+      ids:
+        type: string
+    type: object
+  structure.UpdateUserBasicInfo:
+    properties:
+      client_ip:
+        description: 客户端ip
+        type: string
+      client_port:
+        description: 客户端端口
+        type: string
+      device_info:
+        description: 设备信息
+        type: string
+      email:
+        description: 邮箱
+        type: string
+      heartbeat_time:
+        description: 心跳时间
+        type: string
+      id:
+        type: integer
+      identity:
+        description: 身份
+        type: string
+      is_logout:
+        description: 是否登出
+        type: integer
+      login_out_time:
+        description: 登出时间
+        type: string
+      login_time:
+        description: 登录时间
+        type: string
+      name:
+        description: 名字
+        type: string
+      pass_word:
+        description: 密码
+        type: string
+      phone:
+        description: 手机号
+        type: string
+      salt:
+        description: 加盐
+        type: string
+    type: object
+  structure.UserBasicInfo:
+    properties:
+      client_ip:
+        description: 客户端ip
+        type: string
+      client_port:
+        description: 客户端端口
+        type: string
+      created_at:
+        description: 创建时间
+        type: string
+      creator_id:
+        description: 创建人id
+        type: integer
+      creator_name:
+        description: 创建人名称
+        type: string
+      device_info:
+        description: 设备信息
+        type: string
+      email:
+        description: 邮箱
+        type: string
+      heartbeat_time:
+        description: 心跳时间
+        type: string
+      id:
+        description: id
+        type: integer
+      identity:
+        description: 身份
+        type: string
+      is_logout:
+        description: 是否登出
+        type: integer
+      login_out_time:
+        description: 登出时间
+        type: string
+      login_time:
+        description: 登录时间
+        type: string
+      name:
+        description: 名字
+        type: string
+      pass_word:
+        description: 密码
+        type: string
+      phone:
+        description: 手机号
+        type: string
+      salt:
+        description: 加盐
+        type: string
+      updated_at:
+        description: 更新时间
+        type: string
+      updater_id:
+        description: 更新人id
+        type: integer
+      updater_name:
+        description: 更新人名称
+        type: string
+    type: object
 info:
   contact: {}
 paths:
-  /index:
+  /user/createUser:
     get:
+      parameters:
+      - description: 创建
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/structure.AddUserBasicInfo'
       responses:
         "200":
           description: OK
           schema:
-            type: string
+            $ref: '#/definitions/structure.Id'
+      summary: 新增用户
       tags:
-      - 首页
+      - 用户模块
+  /user/deleteUser:
+    get:
+      parameters:
+      - description: 刪除
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/structure.Id'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/structure.Id'
+      summary: 删除用户
+      tags:
+      - 用户模块
+  /user/getUserList:
+    get:
+      parameters:
+      - description: 页码
+        in: query
+        name: page
+        type: integer
+      - description: 页大小
+        in: query
+        name: size
+        type: integer
+      - description: 名字
+        in: query
+        name: code
+        type: string
+      - description: 密码
+        in: query
+        name: code
+        type: string
+      - description: 手机号
+        in: query
+        name: code
+        type: string
+      - description: 邮箱
+        in: query
+        name: code
+        type: string
+      - description: 加盐
+        in: query
+        name: code
+        type: string
+      - description: 身份
+        in: query
+        name: code
+        type: string
+      - description: 客户端ip
+        in: query
+        name: code
+        type: string
+      - description: 客户端端口
+        in: query
+        name: code
+        type: string
+      - description: 登录时间
+        in: query
+        name: code
+        type: string
+      - description: 心跳时间
+        in: query
+        name: code
+        type: string
+      - description: 登出时间
+        in: query
+        name: code
+        type: string
+      - description: 是否登出
+        in: query
+        name: code
+        type: string
+      - description: 设备信息
+        in: query
+        name: code
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/structure.UserBasicInfo'
+            type: array
+      summary: 所有用户
+      tags:
+      - 用户模块
+  /user/updateUser:
+    post:
+      parameters:
+      - description: 更新
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/structure.UpdateUserBasicInfo'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/structure.Id'
+      summary: 修改用户
+      tags:
+      - 用户模块
 swagger: "2.0"

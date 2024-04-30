@@ -28,7 +28,7 @@ type NodeIface interface {
 }
 
 // NewCustomNode 自定义
-// nodeNum use const best
+// nodeNum use consts best
 // dm := NewCustomNode()
 // 实际开发中需要init它 作为全局服务实例
 // In actual development, it needs to be init as a global service instance

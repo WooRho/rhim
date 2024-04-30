@@ -2,9 +2,11 @@ package logic
 
 import (
 	"context"
+	"errors"
 	"gorm.io/gorm"
 	"rhim/internal/models"
 	"rhim/internal/structure"
+	"rhim/tools"
 )
 
 type (
@@ -18,6 +20,7 @@ type (
 		CreateUser(ctx context.Context, req *structure.AddUserBasicInfo) (data *structure.Id, err error)
 		UpdateUser(ctx context.Context, req *structure.UpdateUserBasicInfo) (data *structure.Id, err error)
 		DeleteUser(ctx context.Context, req *structure.Id) (err error)
+		FindUserByNameAndPwd(ctx context.Context, req *structure.SearchUserBasicInfo) (resp *structure.UserBasicInfo, err error)
 	}
 )
 
@@ -60,7 +63,14 @@ func (l *UserBasicLogic) CreateUser(ctx context.Context, req *structure.AddUserB
 		resp  = &structure.Id{}
 	)
 	model.New(req)
+	err = l.sql.Unique(ctx, model)
+	if err != nil {
+		return
+	}
 	err = l.sql.Create(ctx, model)
+	if err != nil {
+		return
+	}
 	resp.Id = model.ID
 	data = resp
 	return
@@ -76,6 +86,10 @@ func (l *UserBasicLogic) UpdateUser(ctx context.Context, req *structure.UpdateUs
 		return
 	}
 	model.Update(req)
+	err = l.sql.Unique(ctx, model)
+	if err != nil {
+		return
+	}
 	err = l.sql.Update(ctx, model)
 	resp.Id = model.ID
 	data = resp
@@ -84,4 +98,30 @@ func (l *UserBasicLogic) UpdateUser(ctx context.Context, req *structure.UpdateUs
 
 func (l *UserBasicLogic) DeleteUser(ctx context.Context, req *structure.Id) (err error) {
 	return l.sql.Delete(ctx, req.Id)
+}
+
+func (l *UserBasicLogic) FindUserByNameAndPwd(ctx context.Context, req *structure.SearchUserBasicInfo) (resp *structure.UserBasicInfo, err error) {
+	var (
+		user = &models.UserBasic{}
+	)
+	user, err = l.sql.FindUserByName(ctx, req.Name)
+	if user.Name == "" {
+		return nil, errors.New("该用户不存在")
+	}
+	flag := tools.ValidPassword(req.Password, user.Salt, user.Password)
+	if !flag {
+		return nil, errors.New("密码不正确")
+	}
+	pwd := tools.MakePassword(req.Password, user.Salt)
+	user, err = l.sql.FindUserByNameAndPwd(ctx, req.Name, pwd)
+	if err != nil {
+		return
+	}
+	user.GetToken()
+	err = l.sql.Update(ctx, user)
+	if err != nil {
+		return nil, err
+	}
+	resp = user.BuildResp()
+	return resp, err
 }

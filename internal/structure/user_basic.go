@@ -11,6 +11,7 @@ type (
 		Password      string `json:"pass_word" form:"pass_word"`                            // 密码
 		Phone         string `json:"phone" form:"phone" valid:"matches(^1[3-9]{1}\\d{9}$)"` // 手机号
 		Email         string `json:"email" form:"email"  valid:"email"`                     // 邮箱
+		Salt          string `json:"salt"`                                                  // 加盐
 		Identity      string `json:"identity" form:"identity"`                              // 身份
 		ClientIp      string `json:"client_ip" form:"client_ip"`                            // 客户端ip
 		ClientPort    string `json:"client_port" form:"client_port"`                        // 客户端端口
@@ -38,6 +39,9 @@ type (
 	}
 	UserBasicInfoList []*UserBasicInfo
 )
+
+func (u UserBasicInfo) AdjustData() {
+}
 
 func (u UpdateUserBasicInfo) AdjustParam() {
 

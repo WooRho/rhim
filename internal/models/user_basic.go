@@ -2,6 +2,7 @@ package models
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"gorm.io/gorm"
 	"rhim/internal/structure"
@@ -18,6 +19,7 @@ type (
 		Phone         string    `gorm:"column:phone; type:varchar(255) ;not null;default:'';comment:手机号"`                          // 手机号
 		Email         string    `gorm:"column:email; type:varchar(255) ;not null;default:'';comment:邮箱"`                           // 邮箱
 		Identity      string    `gorm:"column:identity; type:varchar(255) ;not null;default:'';comment:身份"`                        // 身份
+		Salt          string    `gorm:"column:salt; type:varchar(255) ;not null;default:'';comment:加盐"`                            // 加盐
 		ClientIp      string    `gorm:"column:client_ip; type:varchar(255) ;not null;default:'';comment:客户端ip"`                    // 客户端ip
 		ClientPort    string    `gorm:"column:client_port; type:varchar(255) ;not null;default:'';comment:客户端端口"`                  // 客户端端口
 		LoginTime     time.Time `gorm:"column:login_time; type:datetime; not null;default:'0000-00-00 00:00:00';comment:登录时间"`     // 登录时间
@@ -36,7 +38,8 @@ func (table *UserBasic) TableName() string {
 func (m *UserBasic) New(req *structure.AddUserBasicInfo) {
 	m.ID = middleware.Snowflake.GenerateID().UInt()
 	m.Name = req.Name
-	m.Password = req.Password
+	m.Salt = tools.GenerateSalt()
+	m.Password = tools.MakePassword(req.Password, "salt")
 	m.Phone = req.Phone
 	m.Email = req.Email
 	m.Identity = req.Identity
@@ -74,6 +77,12 @@ func (m *UserBasic) BuildResp() *structure.UserBasicInfo {
 	return resp
 }
 
+func (m *UserBasic) GetToken() {
+	//token加密
+	str := fmt.Sprintf("%d", time.Now().Unix())
+	m.Identity = tools.MD5Encode(str)
+}
+
 type (
 	UserBasicDao struct {
 		db *gorm.DB
@@ -84,6 +93,9 @@ type (
 		Delete(ctx context.Context, id uint) error
 		Get(ctx context.Context, id uint) (*UserBasic, error)
 		GetList(ctx context.Context, req *structure.SearchUserBasicInfo) (UserBasicList, int64, error)
+		Unique(ctx context.Context, req *UserBasic) error
+		FindUserByNameAndPwd(ctx context.Context, name string, password string) (*UserBasic, error)
+		FindUserByName(ctx context.Context, name string) (*UserBasic, error)
 	}
 )
 
@@ -133,6 +145,30 @@ func (d *UserBasicDao) GetList(ctx context.Context, req *structure.SearchUserBas
 	return model, count, nil
 }
 
-func (d *UserBasicDao) Unique(ctx context.Context, req UserBasic) {
-	d.db.Where("name = ?", req.Name).First(&UserBasic{})
+func (d *UserBasicDao) Unique(ctx context.Context, req *UserBasic) error {
+	d.db.Where("name = ? and id != ?", req.Name, req.ID).First(&req)
+	if req.ID > 0 {
+		return errors.New("名称已被使用")
+	}
+	d.db.Where("phone = ? and id != ?", req.Phone, req.ID).First(&req)
+	if req.ID > 0 {
+		return errors.New("号码已被使用")
+	}
+	d.db.Where("email = ? and id != ?", req.Email, req.ID).First(&req)
+	if req.ID > 0 {
+		return errors.New("号码已被使用")
+	}
+	return nil
+}
+
+func (d *UserBasicDao) FindUserByNameAndPwd(ctx context.Context, name string, password string) (*UserBasic, error) {
+	user := &UserBasic{}
+	err := d.db.Where("name = ? and pass_word=?", name, password).First(user).Error
+	return user, err
+}
+
+func (d *UserBasicDao) FindUserByName(ctx context.Context, name string) (*UserBasic, error) {
+	user := &UserBasic{}
+	err := d.db.Where("name = ?", name).First(user).Error
+	return user, err
 }

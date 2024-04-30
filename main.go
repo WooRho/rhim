@@ -41,7 +41,8 @@ func Init(config config.Config, r *gin.Engine) {
 }
 
 func InitRoot(c config.Config, r *gin.Engine) {
-	baseGroup := r.Group(c.System.Name)
+	baseGroup := r.Group("")
 	rooter.UserRoot(baseGroup)
 	rooter.SwagRoot(baseGroup)
+	rooter.PageRoot(baseGroup)
 }
