@@ -1,6 +1,7 @@
 package handle
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"html/template"
 )
@@ -10,14 +11,20 @@ import (
 // @Success 200 {string} welcome
 // @Router /index [get]
 func GetIndex(c *gin.Context) {
-	ind, err := template.ParseFiles("E:\\code\\rhim\\internal\\handle\\index.html", "E:\\code\\rhim\\front\\view\\chat\\head.html")
+	//ind, err := template.ParseFiles("index.html", "../../../front/view/chat/head.html")
+	ind, err := template.ParseFiles("E:\\code\\rhim\\index.html")
 	if err != nil {
+		fmt.Println("ParseFiles")
 		panic(err)
 	}
-	ind.Execute(c.Writer, "index")
+	err = ind.Execute(c.Writer, "")
+	if err != nil {
+		fmt.Println("Execute")
+		panic(err)
+	}
 }
 func ToRegister(c *gin.Context) {
-	ind, err := template.ParseFiles("E:\\code\\rhim\\front\\view\\chat\\register.html")
+	ind, err := template.ParseFiles("../../front/view/chat/register.html")
 	if err != nil {
 		panic(err)
 	}

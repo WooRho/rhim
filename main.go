@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/gin-gonic/gin"
 	"rhim/config"
+	"rhim/internal/models"
 	"rhim/internal/rooter"
 	"rhim/middleware"
 )
@@ -37,6 +38,7 @@ func Init(config config.Config, r *gin.Engine) {
 	middleware.NewDatabase(&config.Mysql)
 	middleware.NewServiceContext()
 	middleware.InitSnowflake()
+	models.InitSql()
 	InitRoot(config, r)
 }
 
@@ -45,4 +47,8 @@ func InitRoot(c config.Config, r *gin.Engine) {
 	rooter.UserRoot(baseGroup)
 	rooter.SwagRoot(baseGroup)
 	rooter.PageRoot(baseGroup)
+
+	// 静态资源
+	r.Static("front/asset", "front/asset")
+	r.LoadHTMLGlob("front/view/**/*")
 }

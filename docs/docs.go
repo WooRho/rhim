@@ -16,8 +16,23 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/user/createUser": {
+        "/index": {
             "get": {
+                "tags": [
+                    "首页"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/createUser": {
+            "post": {
                 "tags": [
                     "用户模块"
                 ],
@@ -44,7 +59,7 @@ const docTemplate = `{
             }
         },
         "/user/deleteUser": {
-            "get": {
+            "put": {
                 "tags": [
                     "用户模块"
                 ],
@@ -184,8 +199,38 @@ const docTemplate = `{
                 }
             }
         },
-        "/user/updateUser": {
+        "/user/login": {
             "post": {
+                "tags": [
+                    "用户模块"
+                ],
+                "summary": "登录",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "用户名",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "密码",
+                        "name": "password",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "code\",\"message\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/updateUser": {
+            "put": {
                 "tags": [
                     "用户模块"
                 ],
@@ -256,7 +301,7 @@ const docTemplate = `{
                     "description": "名字",
                     "type": "string"
                 },
-                "pass_word": {
+                "password": {
                     "description": "密码",
                     "type": "string"
                 },
@@ -331,7 +376,7 @@ const docTemplate = `{
                     "description": "名字",
                     "type": "string"
                 },
-                "pass_word": {
+                "password": {
                     "description": "密码",
                     "type": "string"
                 },
@@ -404,7 +449,7 @@ const docTemplate = `{
                     "description": "名字",
                     "type": "string"
                 },
-                "pass_word": {
+                "password": {
                     "description": "密码",
                     "type": "string"
                 },

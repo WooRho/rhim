@@ -38,6 +38,7 @@ func MsgHandler(c *gin.Context, ws *websocket.Conn) {
 		if err != nil {
 			fmt.Println(" MsgHandler 发送失败", err)
 		}
+		fmt.Println(" MsgHandler 发送成功")
 
 		tm := time.Now().Format("2006-01-02 15:04:05")
 		m := fmt.Sprintf("[ws][%s]:%s", tm, msg)
@@ -47,4 +48,7 @@ func MsgHandler(c *gin.Context, ws *websocket.Conn) {
 			log.Fatalln(err)
 		}
 	}
+}
+func SenUserMsg(c *gin.Context) {
+	middleware.Chat(c.Writer, c.Request)
 }

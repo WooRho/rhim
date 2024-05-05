@@ -59,7 +59,7 @@ func NewDatabase(config *config.Mysql) *gorm.DB {
 		},
 	)
 	db, err := gorm.Open(mysql.Open(dblink), &gorm.Config{
-		SkipDefaultTransaction: true, //跳过事务执行
+		SkipDefaultTransaction: false, //跳过事务执行
 		NamingStrategy: schema.NamingStrategy{
 			//TablePrefix:   "k_", //设置表前缀
 			SingularTable: true, //在创建表名时采用单复数  也就是比如用结构体去创建表时 不加s

@@ -31,7 +31,7 @@ definitions:
       name:
         description: 名字
         type: string
-      pass_word:
+      password:
         description: 密码
         type: string
       phone:
@@ -85,7 +85,7 @@ definitions:
       name:
         description: 名字
         type: string
-      pass_word:
+      password:
         description: 密码
         type: string
       phone:
@@ -139,7 +139,7 @@ definitions:
       name:
         description: 名字
         type: string
-      pass_word:
+      password:
         description: 密码
         type: string
       phone:
@@ -161,8 +161,17 @@ definitions:
 info:
   contact: {}
 paths:
-  /user/createUser:
+  /index:
     get:
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      tags:
+      - 首页
+  /user/createUser:
+    post:
       parameters:
       - description: 创建
         in: body
@@ -179,7 +188,7 @@ paths:
       tags:
       - 用户模块
   /user/deleteUser:
-    get:
+    put:
       parameters:
       - description: 刪除
         in: body
@@ -270,8 +279,27 @@ paths:
       summary: 所有用户
       tags:
       - 用户模块
-  /user/updateUser:
+  /user/login:
     post:
+      parameters:
+      - description: 用户名
+        in: query
+        name: name
+        type: string
+      - description: 密码
+        in: query
+        name: password
+        type: string
+      responses:
+        "200":
+          description: code","message"}
+          schema:
+            type: string
+      summary: 登录
+      tags:
+      - 用户模块
+  /user/updateUser:
+    put:
       parameters:
       - description: 更新
         in: body

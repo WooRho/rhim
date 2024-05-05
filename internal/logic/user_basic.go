@@ -57,6 +57,7 @@ func (l *UserBasicLogic) Get(ctx context.Context, req *structure.Id) (data *stru
 	data = model.BuildResp()
 	return
 }
+
 func (l *UserBasicLogic) CreateUser(ctx context.Context, req *structure.AddUserBasicInfo) (data *structure.Id, err error) {
 	var (
 		model = &models.UserBasic{}

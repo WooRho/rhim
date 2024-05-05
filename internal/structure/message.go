@@ -1,7 +1,7 @@
 package structure
 
 type (
-	Message struct {
+	message struct {
 		FromId   uint   `json:"from_id"`   // 发送者
 		TargetId uint   `json:"target_id"` // 接受者
 		Type     string `json:"type"`      // 聊天类型  群聊 私聊 广播
@@ -12,4 +12,20 @@ type (
 		Desc     string `json:"desc"`      // 描述
 		Amount   int    `json:"amount"`    //其他数字统计
 	}
+	MessageInfo struct {
+		BasicRecord
+		message
+	}
+	AddMessageInfo struct {
+		message
+	}
+	UpdateMessageInfo struct {
+		message
+		Id uint `json:"id"`
+	}
+	SearchMessageInfo struct {
+		ListQuery
+		message
+	}
+	MessageInfoList []*MessageInfo
 )

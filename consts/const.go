@@ -10,3 +10,7 @@ const (
 	MediaPic   = 2
 	MediaAudio = 3
 )
+
+const (
+	ErrRecordNotFound = "record not found"
+)

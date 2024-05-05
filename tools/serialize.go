@@ -49,6 +49,8 @@ func BuildCustomError(c *gin.Context, err error) {
 	var (
 		response structure.Response
 	)
+	response.Msg = err.Error()
+	response.Code = -1
 	//response.SetVersion(version)
 	//switch vErr := err.(type) {
 	//case *errors.Error:
@@ -58,6 +60,7 @@ func BuildCustomError(c *gin.Context, err error) {
 	//	response.Code = -1
 	//	response.Msg = err.Error()
 	//}
+	fmt.Println("error = ", response.Msg)
 	c.JSON(http.StatusInternalServerError, response)
 	c.Abort()
 	setResult(c, response)

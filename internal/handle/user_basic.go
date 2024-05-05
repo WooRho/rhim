@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/gin-gonic/gin"
 	"rhim/internal/logic"
+	"rhim/internal/models"
 	"rhim/internal/structure"
 	"rhim/middleware"
 	"rhim/tools"
@@ -66,7 +67,7 @@ func GetUserList(c *gin.Context) {
 //	@Param		body	body		structure.AddUserBasicInfo{}	true	"创建"
 //
 //	@Success	200		{object}	structure.Id{}
-//	@Router		/user/createUser [get]
+//	@Router		/user/createUser [post]
 func CreateUser(c *gin.Context) {
 
 	var (
@@ -81,13 +82,9 @@ func CreateUser(c *gin.Context) {
 	if err != nil {
 		return
 	}
-	db.Begin()
+	db = db.Begin()
 	defer func() {
-		if err != nil {
-			db.Rollback()
-		} else {
-			db.Commit()
-		}
+		models.Commit(db, err)
 		tools.BuildResponse(c, err, data)
 	}()
 	data, err = logic.NewUserBasicLogic(db).CreateUser(ctx, p)
@@ -100,7 +97,7 @@ func CreateUser(c *gin.Context) {
 //	@Tags		用户模块
 //	@Param		body	body		structure.Id{}	true	"刪除"
 //	@Success	200		{object}	structure.Id{}
-//	@Router		/user/deleteUser [get]
+//	@Router		/user/deleteUser [put]
 func DeleteUser(c *gin.Context) {
 
 	var (
@@ -115,13 +112,9 @@ func DeleteUser(c *gin.Context) {
 	if err != nil {
 		return
 	}
-	db.Begin()
+	db = db.Begin()
 	defer func() {
-		if err != nil {
-			db.Rollback()
-		} else {
-			db.Commit()
-		}
+		models.Commit(db, err)
 		tools.BuildResponse(c, err, data)
 	}()
 	err = logic.NewUserBasicLogic(db).DeleteUser(ctx, p)
@@ -134,7 +127,7 @@ func DeleteUser(c *gin.Context) {
 //	@Tags		用户模块
 //	@Param		body	body		structure.UpdateUserBasicInfo{}	true	"更新"
 //	@Success	200		{object}	structure.Id{}
-//	@Router		/user/updateUser [post]
+//	@Router		/user/updateUser [put]
 func UpdateUser(c *gin.Context) {
 	var (
 		err  error
@@ -148,13 +141,9 @@ func UpdateUser(c *gin.Context) {
 	if err != nil {
 		return
 	}
-	db.Begin()
+	db = db.Begin()
 	defer func() {
-		if err != nil {
-			db.Rollback()
-		} else {
-			db.Commit()
-		}
+		models.Commit(db, err)
 		tools.BuildResponse(c, err, data)
 	}()
 	data, err = logic.NewUserBasicLogic(db).UpdateUser(ctx, p)
@@ -168,7 +157,7 @@ func UpdateUser(c *gin.Context) {
 // @param name query string false "用户名"
 // @param password query string false "密码"
 // @Success 200 {string} json{"code","message"}
-// @Router /user/login [get]
+// @Router /user/findUserByNameAndPwd [post]
 func Login(c *gin.Context) {
 
 	var (
@@ -182,13 +171,9 @@ func Login(c *gin.Context) {
 	if err != nil {
 		return
 	}
-	db.Begin()
+	db = db.Begin()
 	defer func() {
-		if err != nil {
-			db.Rollback()
-		} else {
-			db.Commit()
-		}
+		models.Commit(db, err)
 		tools.BuildResponse(c, err, data)
 	}()
 

@@ -1,5 +1,12 @@
 package models
 
+import (
+	"gorm.io/gorm"
+	"rhim/internal/structure"
+	"rhim/middleware"
+	"rhim/tools"
+)
+
 // 人员关系
 type Contact struct {
 	Basic
@@ -11,4 +18,47 @@ type Contact struct {
 
 func (table *Contact) TableName() string {
 	return "contact"
+}
+
+func (m *Contact) New(req *structure.AddContactInfo) {
+	m.ID = middleware.Snowflake.GenerateID().UInt()
+	m.OwnerId = req.OwnerId
+	m.TargetId = req.TargetId
+	m.Type = req.Type
+	m.Desc = req.Desc
+}
+
+func (m *Contact) Update(req *structure.UpdateContactInfo) {
+	m.OwnerId = req.OwnerId
+	m.TargetId = req.TargetId
+	m.Type = req.Type
+	m.Desc = req.Desc
+}
+
+func (m *Contact) BuildResp() *structure.ContactInfo {
+	resp := &structure.ContactInfo{}
+	resp.OwnerId = m.OwnerId
+	resp.TargetId = m.TargetId
+	resp.Type = m.Type
+	resp.Desc = m.Desc
+	resp.Id = m.ID
+	resp.CreatedAt = tools.Time2String(m.CreatedAt, tools.YMDHMS)
+	resp.UpdatedAt = tools.Time2String(m.UpdatedAt, tools.YMDHMS)
+	resp.CreatorId = m.CreatorId
+	resp.UpdaterId = m.UpdaterId
+	return resp
+}
+
+type (
+	ContactDao struct {
+		db *gorm.DB
+	}
+	ContactDaoInterface interface {
+	}
+)
+
+func NewContactDao(db gorm.DB) ContactDaoInterface {
+	return &ContactDao{
+		db: &db,
+	}
 }

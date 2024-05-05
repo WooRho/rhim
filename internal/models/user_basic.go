@@ -15,7 +15,7 @@ type (
 	UserBasic struct {
 		Basic
 		Name          string    `gorm:"column:name;type:varchar(255) ;not null;default:'';comment:名字" `                            // 名字
-		Password      string    `gorm:"column:pass_word;type:varchar(255) ;not null;default:'';comment:密码"`                        // 密码
+		Password      string    `gorm:"column:password;type:varchar(255) ;not null;default:'';comment:密码"`                         // 密码
 		Phone         string    `gorm:"column:phone; type:varchar(255) ;not null;default:'';comment:手机号"`                          // 手机号
 		Email         string    `gorm:"column:email; type:varchar(255) ;not null;default:'';comment:邮箱"`                           // 邮箱
 		Identity      string    `gorm:"column:identity; type:varchar(255) ;not null;default:'';comment:身份"`                        // 身份
@@ -100,10 +100,6 @@ type (
 )
 
 func NewUserBasicDao(db *gorm.DB) UserBasicDaoInterface {
-	err := db.AutoMigrate(&UserBasic{})
-	if err != nil {
-		fmt.Println(err)
-	}
 	return &UserBasicDao{
 		db: db,
 	}
@@ -146,16 +142,27 @@ func (d *UserBasicDao) GetList(ctx context.Context, req *structure.SearchUserBas
 }
 
 func (d *UserBasicDao) Unique(ctx context.Context, req *UserBasic) error {
-	d.db.Where("name = ? and id != ?", req.Name, req.ID).First(&req)
-	if req.ID > 0 {
+	var err error
+	var user UserBasic
+	err = d.db.Where("name = ? and id != ?", req.Name, req.ID).First(&user).Error
+	if err != nil && err != gorm.ErrRecordNotFound {
+		return err
+	}
+	if user.ID > 0 {
 		return errors.New("名称已被使用")
 	}
-	d.db.Where("phone = ? and id != ?", req.Phone, req.ID).First(&req)
-	if req.ID > 0 {
+	err = d.db.Where("phone = ? and id != ?", req.Phone, req.ID).First(&user).Error
+	if err != nil && err != gorm.ErrRecordNotFound {
+		return err
+	}
+	if user.ID > 0 {
 		return errors.New("号码已被使用")
 	}
-	d.db.Where("email = ? and id != ?", req.Email, req.ID).First(&req)
-	if req.ID > 0 {
+	err = d.db.Where("email = ? and id != ?", req.Email, req.ID).First(&user).Error
+	if err != nil && err != gorm.ErrRecordNotFound {
+		return err
+	}
+	if user.ID > 0 {
 		return errors.New("号码已被使用")
 	}
 	return nil
@@ -163,7 +170,7 @@ func (d *UserBasicDao) Unique(ctx context.Context, req *UserBasic) error {
 
 func (d *UserBasicDao) FindUserByNameAndPwd(ctx context.Context, name string, password string) (*UserBasic, error) {
 	user := &UserBasic{}
-	err := d.db.Where("name = ? and pass_word=?", name, password).First(user).Error
+	err := d.db.Where("name = ? and password=?", name, password).First(user).Error
 	return user, err
 }
 

@@ -8,7 +8,7 @@ import (
 type (
 	common struct {
 		Name          string `json:"name" form:"name"`                                      // 名字
-		Password      string `json:"pass_word" form:"pass_word"`                            // 密码
+		Password      string `json:"password" form:"password"`                              // 密码
 		Phone         string `json:"phone" form:"phone" valid:"matches(^1[3-9]{1}\\d{9}$)"` // 手机号
 		Email         string `json:"email" form:"email"  valid:"email"`                     // 邮箱
 		Salt          string `json:"salt"`                                                  // 加盐

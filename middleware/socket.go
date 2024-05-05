@@ -40,6 +40,7 @@ func Chat(writer http.ResponseWriter, request *http.Request) {
 	//msgType := query.Get("type")
 	//targetId := query.Get("targetId")
 	//	context := query.Get("context")
+
 	isvalida := true //checkToke()  待.........
 	conn, err := (&websocket.Upgrader{
 		//token 校验
@@ -147,7 +148,7 @@ func udpRecvProc() {
 
 // 后端调度逻辑处理
 func dispatch(data []byte) {
-	msg := structure.Message{}
+	msg := structure.MessageInfo{}
 	err := json.Unmarshal(data, &msg)
 	if err != nil {
 		fmt.Println(err)
