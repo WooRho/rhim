@@ -3,18 +3,19 @@
 
 <head>
     <!--js include-->
+    {{template "/chat/head.shtml"}}
     <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no">
     <title>golangIM</title>
-<!--    <link rel="stylesheet" href="/asset/plugins/mui/css/mui.css">-->
-<!--    <link rel="stylesheet" href="/asset/css/login.css">-->
-<!--    <script src="/asset/plugins/mui/js/mui.js"></script>-->
-<!--    <script src="/asset/js/vue.min.js"></script>-->
-<!--    <script src="/asset/js/util.js"></script>-->
-    <link rel="stylesheet" href="/front/asset/plugins/mui/css/mui.css">
-    <link rel="stylesheet" href="/front/asset/css/login.css">
-    <script src="/front/asset/plugins/mui/js/mui.js"></script>
-    <script src="/front/asset/js/vue.min.js"></script>
-    <script src="/front/asset/js/util.js"></script>
+<!--    <link rel="stylesheet" href="asset/plugins/mui/css/mui.css">-->
+<!--    <link rel="stylesheet" href="asset/css/login.css">-->
+<!--    <script src="asset/plugins/mui/js/mui.js"></script>-->
+<!--    <script src="asset/js/vue.min.js"></script>-->
+<!--    <script src="asset/js/util.js"></script>-->
+<!--    <link rel="stylesheet" href="/front/asset/plugins/mui/css/mui.css">-->
+<!--    <link rel="stylesheet" href="/front/asset/css/login.css">-->
+<!--    <script src="/front/asset/plugins/mui/js/mui.js"></script>-->
+<!--    <script src="/front/asset/js/vue.min.js"></script>-->
+<!--    <script src="/front/asset/js/util.js"></script>-->
 </head>
 <body>
 
@@ -63,13 +64,16 @@
                 //网络请求
                 //封装了promis
                 util.post("user/login",this.user).then(res=>{
-                    console.log(res)
+                    // console.log(res)
                     if(res.code!=0){
-                        mui.toast(res.message)
+                        // mui.toast(res.message)
                     }else{
-                        // location.replace("//127.0.0.1/demo/index.shtml")
+                        // mui.toast(res.message)
+                        console.log(res.data.id)
+                        console.log(res.data.identity)
+                        var url = "/toChat?userId="+res.data.id+"&token="+res.data.identity
+                        location.href = url
                         mui.toast("登录成功,即将跳转")
-                        // location.replace("//127.0.0.1/demo/index.shtml")
                     }
                 })
             },

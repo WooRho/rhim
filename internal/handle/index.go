@@ -12,7 +12,7 @@ import (
 // @Router /index [get]
 func GetIndex(c *gin.Context) {
 	//ind, err := template.ParseFiles("index.html", "../../../front/view/chat/head.html")
-	ind, err := template.ParseFiles("E:\\code\\rhim\\index.html")
+	ind, err := template.ParseFiles(".\\.\\.\\index.html", ".\\.\\.\\front\\view\\chat\\head.html")
 	if err != nil {
 		fmt.Println("ParseFiles")
 		panic(err)
@@ -24,7 +24,8 @@ func GetIndex(c *gin.Context) {
 	}
 }
 func ToRegister(c *gin.Context) {
-	ind, err := template.ParseFiles("../../front/view/chat/register.html")
+	//ind, err := template.ParseFiles(".\\.\\.\\front\\view\\user\\register.html")
+	ind, err := template.ParseFiles(".\\.\\.\\register.html")
 	if err != nil {
 		panic(err)
 	}

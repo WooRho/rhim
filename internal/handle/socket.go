@@ -4,9 +4,12 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
+	"html/template"
 	"log"
 	"net/http"
+	"rhim/internal/models"
 	"rhim/middleware"
+	"strconv"
 	"time"
 )
 
@@ -51,4 +54,31 @@ func MsgHandler(c *gin.Context, ws *websocket.Conn) {
 }
 func SenUserMsg(c *gin.Context) {
 	middleware.Chat(c.Writer, c.Request)
+}
+
+func ToChat(c *gin.Context) {
+	ind, err := template.ParseFiles(".\\.\\.\\front\\view\\chat\\index.html",
+		".\\.\\.\\front\\view\\chat\\head.html",
+		".\\.\\.\\front\\view\\chat\\foot.html",
+		".\\.\\.\\front\\view\\chat\\tabmenu.html",
+		".\\.\\.\\front\\view\\chat\\concat.html",
+		".\\.\\.\\front\\view\\chat\\group.html",
+		".\\.\\.\\front\\view\\chat\\profile.html",
+		".\\.\\.\\front\\view\\chat\\main.html")
+	//ind, err := template.ParseFiles(
+	//	".\\.\\.\\front\\view\\chat\\main.html",
+	//)
+	if err != nil {
+		panic(err)
+	}
+	userId, _ := strconv.Atoi(c.Query("userId"))
+	token := c.Query("token")
+	user := models.UserBasic{}
+	user.ID = uint(userId)
+	user.Identity = token
+	//fmt.Println("ToChat>>>>>>>>", user)
+	ind.Execute(c.Writer, user)
+	// c.JSON(200, gin.H{
+	// 	"message": "welcome !!  ",
+	// })
 }

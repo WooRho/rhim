@@ -39,7 +39,7 @@ func (m *UserBasic) New(req *structure.AddUserBasicInfo) {
 	m.ID = middleware.Snowflake.GenerateID().UInt()
 	m.Name = req.Name
 	m.Salt = tools.GenerateSalt()
-	m.Password = tools.MakePassword(req.Password, "salt")
+	m.Password = tools.MakePassword(req.Password, m.Salt)
 	m.Phone = req.Phone
 	m.Email = req.Email
 	m.Identity = req.Identity
@@ -111,7 +111,7 @@ func (d *UserBasicDao) Create(ctx context.Context, user *UserBasic) error {
 
 func (d *UserBasicDao) Update(ctx context.Context, user *UserBasic) error {
 	modifyMap := tools.Structure2ModifyMap(user)
-	return d.db.Updates(modifyMap).Error
+	return d.db.Model(user).Updates(modifyMap).Error
 }
 
 func (d *UserBasicDao) Delete(ctx context.Context, id uint) error {

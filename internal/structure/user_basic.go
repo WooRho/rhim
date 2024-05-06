@@ -26,7 +26,7 @@ type (
 		common
 	}
 	AddUserBasicInfo struct {
-		RePassword string `json:"re_password"` // 确认密码
+		RePassword string `json:"re_password" form:"re_password"` // 确认密码
 		common
 	}
 	UpdateUserBasicInfo struct {

@@ -78,6 +78,10 @@ func CreateUser(c *gin.Context) {
 		ctx  = context.TODO()
 	)
 
+	defer func() {
+		tools.BuildResponse(c, err, data)
+	}()
+
 	err = tools.ShouldBind(c, p)
 	if err != nil {
 		return
@@ -85,7 +89,6 @@ func CreateUser(c *gin.Context) {
 	db = db.Begin()
 	defer func() {
 		models.Commit(db, err)
-		tools.BuildResponse(c, err, data)
 	}()
 	data, err = logic.NewUserBasicLogic(db).CreateUser(ctx, p)
 	return
@@ -157,7 +160,7 @@ func UpdateUser(c *gin.Context) {
 // @param name query string false "用户名"
 // @param password query string false "密码"
 // @Success 200 {string} json{"code","message"}
-// @Router /user/findUserByNameAndPwd [post]
+// @Router /user/login [post]
 func Login(c *gin.Context) {
 
 	var (

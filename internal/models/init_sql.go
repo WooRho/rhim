@@ -14,9 +14,9 @@ func InitSql() {
 
 	// 新表才需要
 	db.AutoMigrate(
-	//&UserBasic{},
-	//&GroupBasic{},
-	//&Message{},
-	//&Contact{},
+		&UserBasic{},
+		&GroupBasic{},
+		&Message{},
+		&Contact{},
 	)
 }
