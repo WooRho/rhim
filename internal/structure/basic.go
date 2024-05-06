@@ -1,5 +1,7 @@
 package structure
 
+import "rhim/tools"
+
 type (
 	BasicRecord struct {
 		Id          uint   `json:"id"`           // id
@@ -84,8 +86,9 @@ func (r *baseResponse) SetVersion(version string) {
 }
 
 type Id struct {
-	Id  uint   `json:"id" form:"id"`
-	Ids string `json:"ids" form:"ids"`
+	Id       uint              `json:"id" form:"id"`
+	Ids      tools.QueryString `json:"ids" form:"ids"`
+	IdsSlice []uint
 }
 
 func (i Id) AdjustParam() {

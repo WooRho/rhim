@@ -92,6 +92,7 @@ type (
 		Update(ctx context.Context, user *UserBasic) error
 		Delete(ctx context.Context, id uint) error
 		Get(ctx context.Context, id uint) (*UserBasic, error)
+		GetByIds(ctx context.Context, ids []uint) (UserBasicList, error)
 		GetList(ctx context.Context, req *structure.SearchUserBasicInfo) (UserBasicList, int64, error)
 		Unique(ctx context.Context, req *UserBasic) error
 		FindUserByNameAndPwd(ctx context.Context, name string, password string) (*UserBasic, error)
@@ -122,6 +123,13 @@ func (d *UserBasicDao) Get(ctx context.Context, id uint) (*UserBasic, error) {
 		m = &UserBasic{}
 	)
 	err := d.db.Where("id = ?", id).First(m).Error
+	return m, err
+}
+func (d *UserBasicDao) GetByIds(ctx context.Context, ids []uint) (UserBasicList, error) {
+	var (
+		m = UserBasicList{}
+	)
+	err := d.db.Where("id in (?)", ids).First(&m).Error
 	return m, err
 }
 func (d *UserBasicDao) GetList(ctx context.Context, req *structure.SearchUserBasicInfo) (UserBasicList, int64, error) {

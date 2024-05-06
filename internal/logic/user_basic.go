@@ -17,6 +17,7 @@ type (
 	UserBasicLogicInterface interface {
 		GetUserList(ctx context.Context, req *structure.SearchUserBasicInfo) (data *structure.UserBasicInfoList, total int64, err error)
 		Get(ctx context.Context, req *structure.Id) (data *structure.UserBasicInfo, err error)
+		GetByIds(ctx context.Context, req *structure.Id) (data structure.UserBasicInfoList, err error)
 		CreateUser(ctx context.Context, req *structure.AddUserBasicInfo) (data *structure.Id, err error)
 		UpdateUser(ctx context.Context, req *structure.UpdateUserBasicInfo) (data *structure.Id, err error)
 		DeleteUser(ctx context.Context, req *structure.Id) (err error)
@@ -55,6 +56,23 @@ func (l *UserBasicLogic) Get(ctx context.Context, req *structure.Id) (data *stru
 		return
 	}
 	data = model.BuildResp()
+	return
+}
+
+func (l *UserBasicLogic) GetByIds(ctx context.Context, req *structure.Id) (data structure.UserBasicInfoList, err error) {
+	var (
+		list  = models.UserBasicList{}
+		_data = make(structure.UserBasicInfoList, 0)
+	)
+	list, err = l.sql.GetByIds(ctx, req.IdsSlice)
+	if err != nil {
+		return
+	}
+	for _, user := range list {
+		resp := user.BuildResp()
+		_data = append(_data, resp)
+	}
+	data = _data
 	return
 }
 

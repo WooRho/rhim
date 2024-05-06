@@ -2,6 +2,7 @@ package handle
 
 import (
 	"context"
+	"github.com/WooRho/rhtool/rhtool_core/rmap"
 	"github.com/gin-gonic/gin"
 	"rhim/internal/logic"
 	"rhim/internal/models"
@@ -181,5 +182,52 @@ func Login(c *gin.Context) {
 	}()
 
 	data, err = logic.NewUserBasicLogic(db).FindUserByNameAndPwd(ctx, p)
+	return
+}
+
+// GetUserList
+// @Summary 登录
+// @Tags 用户模块
+// @param name query string false "用户名"
+// @param password query string false "密码"
+// @Success 200 {string} json{"code","message"}
+// @Router /user/searchFriends [post]
+func SearchFriends(c *gin.Context) {
+
+	var (
+		err     error
+		db            = middleware.GetDb()
+		p             = &structure.Id{}
+		data          = &structure.UserBasicInfoList{}
+		ctx           = context.TODO()
+		total   int64 = 0
+		userIds       = rmap.IntegerSet[uint]{}
+	)
+	err = tools.ShouldBind(c, p)
+	if err != nil {
+		return
+	}
+	db = db.Begin()
+	defer func() {
+		models.Commit(db, err)
+		tools.BuildListResponse(c, err, data, total)
+	}()
+	var (
+		userLogic    = logic.NewUserBasicLogic(db)
+		contactLogic = logic.NewContactLogic(db)
+		contactReq   = &structure.SearchContactInfo{}
+	)
+	contactReq.OwnerId = p.Id
+	contactList, _, err := contactLogic.GetContactList(ctx, contactReq)
+	for _, contact := range contactList {
+		userIds.Add(contact.TargetId)
+	}
+	p.IdsSlice = userIds.List()
+	*data, err = userLogic.GetByIds(ctx, p)
+	if err != nil {
+		return
+	}
+	total = int64(len(*data))
+
 	return
 }

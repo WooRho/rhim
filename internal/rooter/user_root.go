@@ -12,6 +12,7 @@ func UserRoot(r *gin.RouterGroup) {
 	userGroup.PUT("/deleteUser", h.DeleteUser)
 	userGroup.PUT("/updateUser", h.UpdateUser)
 	userGroup.POST("/login", h.Login)
+	r.POST("/searchFriends", h.SearchFriends)
 	//发送消息
 	r.GET("/user/sendMsg", h.SendMsg)
 	r.GET("/user/senUserMsg", h.SenUserMsg)

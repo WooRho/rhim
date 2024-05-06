@@ -9,5 +9,4 @@ func PageRoot(r *gin.RouterGroup) {
 	r.GET("/", h.GetIndex)
 	r.GET("index", h.GetIndex)
 	r.GET("toRegister", h.ToRegister)
-
 }
